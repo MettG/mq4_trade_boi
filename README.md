@@ -1,7 +1,5 @@
 # Mq4TradeBoi
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/mq4_trade_boi`. To experiment with that code, run `bin/console` for an interactive prompt.
-
 This gem works as a better interactive server to the MT4 interface. How it works:
     Main.rb is initiated, it looks for a data folder created by the EA, creating a new trade boi instance for each folder
     The EA is intigated, it creates a folder for a specific symbol and time frame, and saves specific data to a file
@@ -15,6 +13,8 @@ This gem works as a better interactive server to the MT4 interface. How it works
         Trade Signals
         Account info data file
         Better info through slack commands
+        Better documentation and flexibility of order management strategies
+        Algorithmic trading
 
 ## Installation
 
@@ -34,7 +34,7 @@ Or install it yourself as:
 
 ## Usage
 
-Write your own order management logic in data.rb and specify which data to save in mql4 file_lib.mqh, all mql4 objects are in objects.lib to easily gather data. MAKE SURE TO SPECIFIY WHERE THE DATA IS BEING SAVED (create a new folder called 'data')
+Write your own order management logic in data.rb and specify which data to save in mql4 main file, all mql4 objects are in objects.lib to easily gather data. MAKE SURE TO SPECIFIY WHERE THE DATA IS BEING SAVED (create a new folder called 'data') And check main.rb to see how the program reads from the folder to build a new instance of Trade Boi.
 
 ## Development
 

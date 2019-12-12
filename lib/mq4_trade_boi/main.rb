@@ -25,15 +25,16 @@
 	# abort:(cancels ability to trade)
 
 require 'colorize'
-require 'timeout'
+
 require_relative 'order'
 require_relative 'data'
+require_relative 'listener'
 
 class TradeBoi
-	attr_accessor :@path
+	attr_accessor :name
 	def initialize(symbol=nil,time_frame=nil)
 		unless symbol == nil
-			name = symbol + "_"+ time_frame
+			@name = symbol + "_"+ time_frame
 			@path = "./data/#{name}/"+name+".txt"
 			@c_path = "./data/#{name}/com_"+name+".txt"
 		else
@@ -42,6 +43,7 @@ class TradeBoi
 		end
 		@command=""
 		@data = MData.new(@path)
+		puts "TradeBoi:#{name} Created!".bold.yellow
 		start
 	end
 	def start
@@ -49,94 +51,69 @@ class TradeBoi
 		#Load Data
 		@data.collect
 		#Determine Action from data
-		if @data.recently_closed?
-			# If Order, do management
-			if @data.has_order?
-				if @data.break_even?
-					@command = "modify_#{@data.break_even}"
-				end
-				if @data.move_stop?
-					@command = "modify_#{@data.trail_stop}"
-				end
-				if @data.close_profit?
-					@command = "close"
-				end
-			else
-				# If no order, check for entry
-				@command = menu
+		# If Order, do management
+		if @data.has_order?
+			if @data.break_even?
+				@command = "modify_#{@data.break_even}"
 			end
-			if @command != nil
-				save_command
+			if @data.move_stop?
+				@command = "modify_#{@data.trail_stop}"
 			end
+			if @data.close_profit?
+				@command = "close"
+			end
+		else
+			# If no order, check for entry
+			@command = menu
 		end
+		if @command != nil
+			save_command
+		else
+			sleep(30)
+		end
+
 		start
 	end
 
 	def menu
-		puts "Enter Order?".bold.green
-		ans = nil
-		begin
-			Timeout::timeout 15 do
-				while true
-					print "Buy/Sell > ".bold.white
-					case gets.strip.downcase
-						when 'b','buy'
-							ans = "buy_#{@data.buy_stop}_#{@data.buy_take}"
-							break
-						when 's','sell'
-							ans = "sell_#{@data.sell_stop}_#{@data.sell_take}"
-							break
-						when 'n','no'
-							break
-						when 'q','quit','exit'
-							puts "Are you sure you want to Abort Program!?".bold.red
-							print "(Y/N) > ".white
-							if gets.strip.downcase == 'y'
-								exit
-							else
-								puts "Exit canceled, no order made.".bold.yellow
-								break
-							end
-					end
-				end
-			end
-		rescue Timeout::Error
-			ans = nil
-		end
-		unless ans
-			puts "No Order Entered.".bold.red
-		else
-			puts "#{ans.capitalize} Order will be Entered!".bold.yellow
-		end
+		listener = Listen.new(Time.now,30)
+		ans = listener.work
 		ans
 	end
 
 	def ready
+		puts "Called ready."
 		#Check file for complete, if not, wait for it be
 		while true
+			# puts "looping...".black
 			if check_file('_complete')
 				puts "File Ready!".green
 				break
+			else
+				puts "File Not Ready.".red
+				sleep(5)
 			end
-			puts "File Not Ready.".red
-			sleep(1)
 		end
 	end
 
 	def check_file(s)
 		# returns true if s in data file
 		puts "Checking file..."
+		i=0
 		File.open(@path,'r').each do |line|
 			# puts "#{@data.unique?(line.strip.split('_')[1])} " + line.strip.split('_')[1]
 			# sleep(1)
 			unless @data.unique?(line.strip.split('_')[1])
-				puts "Old Data File!".red
-				sleep(5)
-				return false
+				if i < 1
+					puts "Old Data File!".red
+					sleep(5)
+					return false
+				end
 			end
 			if line.strip == s
 				return true
 			end
+			i+=1
 		end
 
 		return false
@@ -150,12 +127,13 @@ end
 class Program
 
 	def initialize
+		puts "Program begin."
 		@boys = []
 		process
 	end
 
 	def add(boy)
-		@boys.push(boy.path)
+		@boys.push(boy.name)
 	end
 
 	def exists?(path)
@@ -165,9 +143,9 @@ class Program
 	def process
 		# Look at each folder within data
 		# For each folder, create a new TradeBoi
-
+		puts "Checking for new folders...".black
 		Dir.entries('./data').each do |f|
-			if !f.include?('.') && !exists?(path)
+			if !f.include?('.') && !exists?(f)
 				arr = f.split('_')
 				add(TradeBoi.new(arr[0],arr[1]))
 			end
@@ -178,7 +156,8 @@ class Program
 
 end
 
-
+# Test
+Program.new
 
 
 

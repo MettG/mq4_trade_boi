@@ -1,0 +1,30 @@
+Sample Data (Data needed)
+
+serial #
+OrderNumber_DIR(0 if none)_OPEN_STOP_TAKE
+atr
+pip
+lastHigh
+lastLow
+low
+high
+Ask
+Bid
+basis (20 SMA)
+secondsSince
+
+Sample Commands (replace CAPS with numbers)
+
+buy_STOP_TAKE
+close_
+
+Sample Errors
+
+12-01 10:04 
+Error: Command asking for too many arguments
+Status: Critical
+Action: Close_Abort
+12-03 10:55
+Error: Failed to Modify Order
+Status: Urgent
+Action: Modify

@@ -1,0 +1,13 @@
+serial_738
+orderNumber_0 
+ATR_0.12
+Ask_1.2456
+Bid_1.2406
+Low_1.236
+High_1.247
+LastLow_1.23
+LastHigh_1.235
+Pip_0.0001
+basis_1.2
+secondsSince_360
+_complete

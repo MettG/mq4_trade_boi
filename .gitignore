@@ -6,3 +6,4 @@
 /pkg/
 /spec/reports/
 /tmp/
+/lib/mq4_trade_boi/secrets.yml

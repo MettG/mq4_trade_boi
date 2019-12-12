@@ -1,7 +1,12 @@
 source "https://rubygems.org"
 
-gem 'slack-ruby-client'
-gem 'async-websocket', '~> 0.8.0'
+require 'json'
+require 'openssl'
+require 'net/http'
+require 'uri'
+require 'yaml'
+require 'colorize'
+require "socket"
 
 # Specify your gem's dependencies in mq4_trade_boi.gemspec
 gemspec
