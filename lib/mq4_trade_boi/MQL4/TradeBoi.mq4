@@ -1,14 +1,11 @@
 #include "order_lib.mqh"
 #include "file_lib.mqh"
 #include "objects_lib.mqh"
+#include "file_paths.mqh"
 extern int LEVERAGE = 7; // Leverage in percent
 /*
     Note: All paths must be into the ruby application's data folder, then run the ruby at the same time this is running.
 */
-string path = symbol+"_"+Period();
-const string DATA_PATH = "./data/"+path+"/"+path+".txt";
-const string COMMAND_PATH = "./data/"+path+"/com_"+path+".txt";
-const string ERROR_PATH = "./data/"+path+"/error_"+path+".txt";
 string symbol;
 Error * errors;
 CommandObject * commands;
