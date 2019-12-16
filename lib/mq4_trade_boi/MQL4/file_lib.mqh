@@ -1,11 +1,13 @@
+#include "variables.mqh"
+
 void GetCommand() {
     int handle = FileOpen(COMMAND_PATH,FILE_READ|FILE_TXT);
     if(handle == INVALID_HANDLE) {
         Alert("Critical Error! Cannot read command file!");
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: Commands file cannot be read.");
-        e.add("Status: Critical");
-        e.add("Action: Ping_Abort");
+        e.Add("Error: Commands file cannot be read.");
+        e.Add("Status: Critical");
+        e.Add("Action: Ping_Abort");
         AddError(e);
     } else {
         if(FileSize(handle) == 0) {
@@ -13,7 +15,7 @@ void GetCommand() {
             return;
         } 
         while(!FileIsEnding(handle)){
-            str = FileReadString(handle);
+            string str = FileReadString(handle);
             string sep="_";          
             ushort u_sep;
             string result[]; 
@@ -34,13 +36,14 @@ void GetCommand() {
 }
 
 void DataToFile() {
-    int handle = FileOpen(DATA_PATH, FILE_READ|FILE_TXT);
+    int handle = FileOpen(DATA_PATH, FILE_WRITE|FILE_TXT);
     if(handle == INVALID_HANDLE) {
         Alert("Critical Error! Cannot read data file!");
+        Print("Current Data path: ", DATA_PATH);
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: Data file cannot be read.");
-        e.add("Status: Critical");
-        e.add("Action: Ping_Abort");
+        e.Add("Error: Data file cannot be read.");
+        e.Add("Status: Critical");
+        e.Add("Action: Ping_Abort");
         AddError(e);
         return;
     }
@@ -48,15 +51,17 @@ void DataToFile() {
     FileClose(handle);
     handle = FileOpen(DATA_PATH, FILE_WRITE|FILE_TXT);
     if(handle != INVALID_HANDLE) {
-        for(int i = 0; i < ArraySize(data); i++) {
-            FileWriteString(handle,data[i].FileStr());
+        for(int i = 0; i < ArraySize(data); i++) {         
+            DataObject * d = data[i];
+            //Print(CheckPointer(d) == POINTER_INVALID);
+            FileWriteString(handle,d.FileStr());
         }
         FileClose(handle);
     }
 }
 
 void ErrorsToFile() {
-    handle = FileOpen(ERROR_PATH, FILE_WRITE|FILE_TXT);
+    int handle = FileOpen(ERROR_PATH, FILE_WRITE|FILE_TXT);
     if(handle != INVALID_HANDLE) {
         for(int i = 0; i < ArraySize(errors); i++) {
             for(int j=0; j < errors[i].Size(); j++) {

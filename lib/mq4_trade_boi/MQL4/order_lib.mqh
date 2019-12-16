@@ -1,14 +1,5 @@
+#include "variables.mqh"
 // All order methods for Trade Boi
-
-double FlatDouble(double ValueToFlatten, int digs = 0)
-{
-   if(digs == 0) digs = Digits;
-   double Power = pow(10, digs);
-   double ReturnValue;
-   
-   ReturnValue = MathRound(Power * ValueToFlatten) / Power ;
-   return (ReturnValue);
-}
 
 double LotValue(string symb, int stopPoints) {
     RefreshRates();
@@ -25,6 +16,7 @@ int FindOrder(double open) {
             if(open == OrderOpenPrice()) return OrderTicket();
         }
     }
+    return -1;
 }
 
 void EnterSell(double stop, double take) {
@@ -54,9 +46,9 @@ void EnterSell(double stop, double take) {
     }
     Alert("Critical Error! Sell failed to enter!");
     Error * e = new Error(TimeToString(TimeCurrent()));
-    e.add("Error: Sell failed.");
-    e.add("Status: Urgent");
-    e.add("Action: Abort_Ping");
+    e.Add("Error: Sell failed.");
+    e.Add("Status: Urgent");
+    e.Add("Action: Abort_Ping");
     AddError(e);
 }
 
@@ -87,9 +79,9 @@ void EnterBuy(double stop, double take) {
     }
     Alert("Critical Error! Sell failed to enter!");
     Error * e = new Error(TimeToString(TimeCurrent()));
-    e.add("Error: Sell failed.");
-    e.add("Status: Urgent");
-    e.add("Action: Abort_Ping");
+    e.Add("Error: Sell failed.");
+    e.Add("Status: Urgent");
+    e.Add("Action: Abort_Ping");
     AddError(e);
 }
 
@@ -110,24 +102,25 @@ void CloseOut(double open) {
     if(!OrderSelect(id,SELECT_BY_TICKET)) {
         Alert("Critical Error! No such order id to close!");
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: No such id for order close.");
-        e.add("Status: Urgent");
-        e.add("Action: Abort_Ping");
+        e.Add("Error: No such id for order close.");
+        e.Add("Status: Urgent");
+        e.Add("Action: Abort_Ping");
         AddError(e);
     }
     else {
         int i = 0;
+        double price = OrderType() == 0 ? Ask : Bid;
         while(i < 5) {
             ResetLastError();
-            if(!OrderClose(id,lots,price,slippage)) {
+            if(!OrderClose(id,OrderLots(),price,5)) {
                 Alert(symbol + " Order close failed! Error: "+ IntegerToString(GetLastError()) + " retrying...");
                 Sleep(2000);
             }else {
                 Print("Order Successfully Closed.");
                 Error * e = new Error(TimeToString(TimeCurrent()));
-                e.add("Info: Order Closed!");
-                e.add("Status: Success");
-                e.add("Action: Ping");
+                e.Add("Info: Order Closed!");
+                e.Add("Status: Success");
+                e.Add("Action: Ping");
                 AddError(e);
                 return;
             }
@@ -135,9 +128,9 @@ void CloseOut(double open) {
         }
         Alert("Order Close timed out!");
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: Close Order failed!");
-        e.add("Status: Critical");
-        e.add("Action: Ping");
+        e.Add("Error: Close Order failed!");
+        e.Add("Status: Critical");
+        e.Add("Action: Ping");
         AddError(e);
     }
 }
@@ -148,9 +141,9 @@ void ModOrder(double open, double newStop) {
     if(!OrderSelect(id,SELECT_BY_TICKET)) {
         Alert("Critical Error! No such order id to modify!");
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: No such id for modification.");
-        e.add("Status: Urgent");
-        e.add("Action: Abort_Ping");
+        e.Add("Error: No such id for modification.");
+        e.Add("Status: Urgent");
+        e.Add("Action: Abort_Ping");
         AddError(e);
     } else {
         int type = OrderType();
@@ -161,7 +154,7 @@ void ModOrder(double open, double newStop) {
         } else {
             if(newStop >= stop || newStop - Ask <= MarketInfo(symbol, MODE_STOPLEVEL)) return;
         }
-        i = 0;
+        int i = 0;
         while(i < 5) {
             ResetLastError();
             if(!OrderModify(id,open,newStop,take,0)) {
@@ -170,9 +163,9 @@ void ModOrder(double open, double newStop) {
             }else {
                 Print("Order Modified! ", DoubleToString(MathAbs(open - newStop) * Point,0) + " Pips.");
                 Error * e = new Error(TimeToString(TimeCurrent()));
-                e.add("Info: Order Modified! + " + DoubleToString(MathAbs(open - newStop) * Point,0) + " Pips.");
-                e.add("Status: Success");
-                e.add("Action: Ping");
+                e.Add("Info: Order Modified! + " + DoubleToString(MathAbs(open - newStop) * Point,0) + " Pips.");
+                e.Add("Status: Success");
+                e.Add("Action: Ping");
                 AddError(e);
                 return;
             }
@@ -180,9 +173,9 @@ void ModOrder(double open, double newStop) {
         }
         Alert("Order Modification timed out! Too many failures.");
         Error * e = new Error(TimeToString(TimeCurrent()));
-        e.add("Error: Modification failed!");
-        e.add("Status: Critical");
-        e.add("Action: Ping");
+        e.Add("Error: Modification failed!");
+        e.Add("Status: Critical");
+        e.Add("Action: Ping");
         AddError(e);
     }
 }

@@ -1,20 +1,25 @@
+#property strict
+#include "variables.mqh"
 #include "order_lib.mqh"
 #include "file_lib.mqh"
-#include "objects_lib.mqh"
-#include "file_paths.mqh"
 extern int LEVERAGE = 7; // Leverage in percent
 /*
     Note: All paths must be into the ruby application's data folder, then run the ruby at the same time this is running.
 */
-string symbol;
-Error * errors;
-CommandObject * commands;
-DataObject * data;
-int init() {
+input bool common_folder= false;
+int OnInit() {
     symbol = Symbol();
+    if(FolderCreate(ROOT_PATH+PATH)) {
+      Print("Data folder created successfully.");
+    } else {
+      ResetLastError();
+      Print("Data folder failed to create! Error: ", GetLastError());
+    }
+    EventSetTimer(1);
+    return 0;
 }
 
-int start() {
+void OnTimer() {
     if(TimeSeconds(TimeCurrent()) == 0) {
         Process();
     }
@@ -22,6 +27,7 @@ int start() {
 
 void Process() {
     GatherData();
+    //Print(ArraySize(data), data[2]);
     DataToFile();
     GetCommand();
     InterpretCommand();
@@ -32,8 +38,8 @@ void InterpretCommand() {
         Print("No commands, sleeping...");
         Sleep(5000);
     }
-    for(i=0;i<ArraySize(commands);i++) {
-        string val = commands[i].Key());
+    for(int i = 0;i<ArraySize(commands);i++) {
+        string val = commands[i].Key();
         // Buy and sell pass stop and take
         if(StringCompare("buy",val,false) == 0) {
             EnterBuy(commands[i].GetNextArg(),commands[i].GetNextArg());
@@ -77,19 +83,19 @@ void GatherData() {
     AddData("bid",Bid);
     AddData("pip",Point);
 
-    if(SymbolCount() < 1)
+    if(SymbolOrders() < 1)
         AddData("ordernumber",0.0);
     else {
         for(int i = 0; i < OrdersTotal(); i++) {
             if(OrderSelect(i,SELECT_BY_POS)) {
                 if(OrderSymbol() != symbol) continue;
                 if(OrderTakeProfit() == 0) continue;
-                dir = 1;
+                int dir = 1;
                 if(OrderType() == 1) dir = -1;
-                AddData("ordernumber",dir);
-                data[ArraySize(data)-1].add(OrderOpenPrice());
-                data[ArraySize(data)-1].add(OrderStopLoss());
-                data[ArraySize(data)-1].add(OrderTakeProfit());
+                DataObject * d = AddData("ordernumber",dir);
+                d.Add(OrderOpenPrice());
+                d.Add(OrderStopLoss());
+                d.Add(OrderTakeProfit());
                 break;
             }
         }
