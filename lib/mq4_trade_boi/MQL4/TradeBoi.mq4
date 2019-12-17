@@ -47,7 +47,7 @@ void InterpretCommand() {
     }
     commands.Start();
     while(commands.Loop())) {
-        command = commands.Get();
+        CommandObject* command = (CommandObject*) commands.Get();
         string val = command.Key();
         // Buy and sell pass stop and take
         if(StringCompare("buy",val,false) == 0) {

@@ -55,7 +55,8 @@ void DataToFile() {
         data.Start();
         while(data.Loop()) {         
             //Print(CheckPointer(d) == POINTER_INVALID);
-            FileWriteString(handle,data.Get().FileStr()+"\r\n");
+            DataObject* d = (DataObject*) data.Get();
+            FileWriteString(handle,d.FileStr()+"\r\n");
         }
         FileClose(handle);
     }
@@ -66,7 +67,7 @@ void ErrorsToFile() {
     if(handle != INVALID_HANDLE) {
         errors.Start();
         while(errors.Loop()) {
-            ErrorObject * error = errors.Get();
+            ErrorObject * error = (ErrorObject*) errors.Get();
             for(int j=0; j < error.Size(); j++) {
                 FileWriteString(handle,error.Next()+"\r\n");
             }

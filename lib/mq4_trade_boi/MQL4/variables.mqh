@@ -6,15 +6,24 @@ List * commands;
 List * errors;
 List * data;
 
-void AddError(Error* & e) {
-    errors.Add(e);
+void InitLists() {
+    commands = new List();
+    errors = new List();
+    data = new List();
+}
+
+void AddError(Error & e) {
+    ParentObject * p = (ParentObject*) GetPointer(e);
+    errors.Add(p);
 }
 
 void AddData(string k, double v) {
     DataObject * d = new DataObject(k,v);
-    data.Add(e);
+    ParentObject * p = (ParentObject*) d;
+    data.Add(p);
 }
 
-void AddCommand(CommandObject* &c) {
-    commands.Add(e);
+void AddCommand(CommandObject &c) {
+    ParentObject * p = (ParentObject*) GetPointer(c);
+    commands.Add(p);
 }

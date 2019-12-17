@@ -10,8 +10,8 @@ class Node {
         ParentObj * obj;
         Node * next;
     public:
-        Node(ParentObj* &object) {
-            obj = object;
+        Node(const ParentObj &object) {
+            obj = GetPointer(object);
             next = null;
         }
         ~Node() {
@@ -41,12 +41,12 @@ class List {
         ~List() {
             DeleteAll();
         }
-        void Add(ParentObj* &object) {
+        void Add(const ParentObj &object) {
             if(rootNode == null) {
-                rootNode = new Node(object);
+                rootNode = new Node(GetPointer(object));
                 currNode = rootNode;
             } else {
-                Node * n = new Node(object);
+                Node * n = new Node(GetPointer(object));
                 currNode.AddNext(n);
                 currNode = n;
             }
