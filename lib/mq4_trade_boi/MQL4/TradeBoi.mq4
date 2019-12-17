@@ -19,6 +19,13 @@ int OnInit() {
     return 0;
 }
 
+int deinit() {
+    delete(errors);
+    delete(data);
+    delete(commands);
+    return 0;
+}
+
 void OnTimer() {
     if(TimeSeconds(TimeCurrent()) == 0) {
         Process();
@@ -34,29 +41,31 @@ void Process() {
 }
 
 void InterpretCommand() {
-    if(ArraySize(commands) < 1) {
+    if(commands.Get() == null) {
         Print("No commands, sleeping...");
         Sleep(5000);
     }
-    for(int i = 0;i<ArraySize(commands);i++) {
-        string val = commands[i].Key();
+    commands.Start();
+    while(commands.Loop())) {
+        command = commands.Get();
+        string val = command.Key();
         // Buy and sell pass stop and take
         if(StringCompare("buy",val,false) == 0) {
-            EnterBuy(commands[i].GetNextArg(),commands[i].GetNextArg());
+            EnterBuy(command.GetNextArg(),command.GetNextArg());
             break;
         }
         else if(StringCompare("sell",val,false) == 0) {
-            EnterSell(commands[i].GetNextArg(),commands[i].GetNextArg());
+            EnterSell(command.GetNextArg(),command.GetNextArg());
             break;
         }
         // Pass open to match order and then new stop
         else if(StringCompare("modify",val,false) == 0) {
-            ModOrder(commands[i].GetNextArg(),commands[i].GetNextArg());
+            ModOrder(command.GetNextArg(),command.GetNextArg());
             break;
         }
         // Pass open to match for close order
         else if(StringCompare("close",val,false) == 0) {
-            CloseOut(commands[i].GetNextArg());
+            CloseOut(command.GetNextArg());
             break;
         }
         // For emergencies
@@ -92,7 +101,8 @@ void GatherData() {
                 if(OrderTakeProfit() == 0) continue;
                 int dir = 1;
                 if(OrderType() == 1) dir = -1;
-                DataObject * d = AddData("ordernumber",dir);
+                AddData("ordernumber",dir);
+                DataObject * d = data.Get();
                 d.Add(OrderOpenPrice());
                 d.Add(OrderStopLoss());
                 d.Add(OrderTakeProfit());

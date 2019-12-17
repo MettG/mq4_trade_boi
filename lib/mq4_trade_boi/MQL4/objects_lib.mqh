@@ -1,7 +1,7 @@
-
+#include "list.mqh"
 // All data objects for Trade Boi
 
-class Error {
+class Error : ParentObj {
     private:
         string err[1];
         int i;
@@ -14,9 +14,9 @@ class Error {
             string temp[];
             int newSize = ArraySize(err)+1;
             ArrayResize(temp,newSize);
-            ArrayCopy(err,temp);
-            temp[newSize-1] = s;
             ArrayCopy(temp,err);
+            temp[newSize-1] = s;
+            ArrayCopy(err,temp);
         }
         string Next() {
             if( i >= ArraySize(err)) {
@@ -32,9 +32,7 @@ class Error {
         }
 };
 
-Error * errors[];
-
-class DataObject {
+class DataObject : ParentObj {
     private:
         string key,add[];
         double val;
@@ -48,9 +46,9 @@ class DataObject {
             string temp[];
             int newSize = ArraySize(add)+1;
             ArrayResize(temp,newSize);
-            ArrayCopy(add,temp);
-            temp[newSize-1] = DoubleToStr(v);
             ArrayCopy(temp,add);
+            temp[newSize-1] = DoubleToStr(v);
+            ArrayCopy(add,temp);
         }
 
         string Key() {
@@ -72,9 +70,7 @@ class DataObject {
         }
 };
 
-DataObject * data[];
-
-class CommandObject {
+class CommandObject : ParentObj {
     private:
         string command;
         double args[];
@@ -88,9 +84,9 @@ class CommandObject {
             double temp[];
             int newSize = ArraySize(args)+1;
             ArrayResize(temp,newSize);
-            ArrayCopy(args,temp);
-            temp[newSize-1] = FlatDouble(val);
             ArrayCopy(temp,args);
+            temp[newSize-1] = FlatDouble(val);
+            ArrayCopy(args,temp);
         }
         string Key() {
             return command;
@@ -98,11 +94,6 @@ class CommandObject {
         double GetNextArg() {
             if(i >= ArraySize(args)) {
                 Alert("Critical Error! Trying to call more commands args than is possible!");
-                Error * e = new Error(TimeToString(TimeCurrent()));
-                e.Add("Error: Commands call too many args.");
-                e.Add("Status: Critical");
-                e.Add("Action: Close_Abort");
-                AddError(e);
                 return 0.0;
             }
             double a = args[i];
@@ -110,8 +101,6 @@ class CommandObject {
             return a;
         }
 };
-
-CommandObject * commands[];
 
 double FlatDouble(double ValueToFlatten, int digs = 0)
 {
@@ -123,35 +112,7 @@ double FlatDouble(double ValueToFlatten, int digs = 0)
    return (ReturnValue);
 }
 
-void AddError(Error & e) {
-    Error * temp[];
-    int newSize = ArraySize(errors)+1;
-    ArrayResize(temp,newSize);
-    ArrayCopy(errors,temp);
-    temp[newSize-1] = e;
-    ArrayCopy(temp,errors);
-}
 
-DataObject * AddData(string k, double v) {
-    DataObject * d = new DataObject(k,v);
-    DataObject * temp[];
-    int newSize = ArraySize(data)+1;
-    ArrayResize(temp,newSize);
-    ArrayCopy(data,temp);
-    temp[newSize-1] = d;
-    ArrayCopy(temp,data);
-    Print("Data object saved: ", data[newSize-1]);
-    return d;
-}
-
-void AddCommand(CommandObject & c) {
-    CommandObject * temp[];
-    int newSize = ArraySize(commands)+1;
-    ArrayResize(temp,newSize);
-    ArrayCopy(commands,temp);
-    temp[newSize-1] = c;
-    ArrayCopy(temp,commands);
-}
 
 
 

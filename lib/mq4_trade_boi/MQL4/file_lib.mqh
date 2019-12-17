@@ -25,6 +25,7 @@ void GetCommand() {
             for(int i = 1; i < ArraySize(result); i++) {
                 c.AddArg(StrToDouble(result[i]));
             }
+            AddCommand(c);
         }
         FileClose(handle);
         // Wipe the data file after recieving a command
@@ -51,10 +52,10 @@ void DataToFile() {
     FileClose(handle);
     handle = FileOpen(DATA_PATH, FILE_WRITE|FILE_TXT);
     if(handle != INVALID_HANDLE) {
-        for(int i = 0; i < ArraySize(data); i++) {         
-            DataObject * d = data[i];
+        data.Start();
+        while(data.Loop()) {         
             //Print(CheckPointer(d) == POINTER_INVALID);
-            FileWriteString(handle,d.FileStr());
+            FileWriteString(handle,data.Get().FileStr()+"\r\n");
         }
         FileClose(handle);
     }
@@ -63,9 +64,11 @@ void DataToFile() {
 void ErrorsToFile() {
     int handle = FileOpen(ERROR_PATH, FILE_WRITE|FILE_TXT);
     if(handle != INVALID_HANDLE) {
-        for(int i = 0; i < ArraySize(errors); i++) {
-            for(int j=0; j < errors[i].Size(); j++) {
-                FileWriteString(handle,errors[i].Next());
+        errors.Start();
+        while(errors.Loop()) {
+            ErrorObject * error = errors.Get();
+            for(int j=0; j < error.Size(); j++) {
+                FileWriteString(handle,error.Next()+"\r\n");
             }
         }
         FileClose(handle);
